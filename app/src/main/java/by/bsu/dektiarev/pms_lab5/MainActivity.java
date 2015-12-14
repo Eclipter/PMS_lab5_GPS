@@ -4,6 +4,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -53,6 +54,10 @@ public class MainActivity extends AppCompatActivity {
         return act;
     }
 
+    public RelativeLayout getRelativeLayout() {
+        return relativeLayout;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,13 +99,15 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        act = this;
-        Intent intentp = new Intent(getApplicationContext(), MyReciever.class);
-        final PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0,
-                intentp, PendingIntent.FLAG_UPDATE_CURRENT);
-        Criteria criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_FINE);
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("GPS_ACTION");
+        MyReciever reciever = new MyReciever();
+        registerReceiver(reciever, filter);
 
+        act = this;
+        Intent intentp = new Intent("GPS_ACTION");
+        final PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0,
+                intentp, PendingIntent.FLAG_CANCEL_CURRENT);
 
         final boolean[] stopFlag = new boolean[1];
 
@@ -149,6 +156,11 @@ public class MainActivity extends AppCompatActivity {
                                     elapsedText.setText(String.valueOf(time));
                                 }
                             });
+                            try {
+                                Thread.sleep(100);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 });
